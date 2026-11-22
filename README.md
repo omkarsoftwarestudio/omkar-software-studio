@@ -6,7 +6,7 @@ A complete, responsive, multi-page marketing website for Omkar Software Studio, 
 
 Built with plain HTML5, CSS and vanilla JavaScript. No frameworks, build tools, package managers or JavaScript libraries are used. Graphics are inline SVG or CSS; the only external resource is Google Fonts.
 
-Features include a sticky responsive navigation with mobile dropdowns, dark mode with saved preference, scroll-reveal animations, animated counters, a testimonial slider, FAQ accordions, a validated contact form, accessible markup, and SEO metadata on every page.
+Features include a sticky responsive navigation with mobile dropdowns, dark mode with saved preference, scroll-reveal animations, FAQ accordions, a validated contact form, accessible markup, and SEO metadata on every page.
 
 ## Folder structure
 
@@ -54,15 +54,13 @@ No installation, server configuration or build step is required. Internet access
 
 Search all files for `[PLACEHOLDER:` to find every item below.
 
-- [ ] **Contact details** — street address, state / pin code and working hours in `contact.html` and the footer. Email and phone are set to `omkarenterprises1330@gmail.com` and `+91 91373 34292`.
-- [ ] **Social links** — LinkedIn and GitHub URLs in the footer of every page.
+- [ ] **Contact details** — street address and state / pin code in `contact.html` and the footer. Email and phone are set to `omkarenterprises1330@gmail.com` and `+91 91373 34292`.
+- [ ] **Social links** — LinkedIn currently uses the fallback URL `https://www.linkedin.com/` in every footer, the LinkedIn contact card, and Organization `sameAs`; replace it with the real company page URL when available. GitHub is set to `https://github.com/omkarsoftwarestudio`.
 - [ ] **Company identity** — official logo is `assets/images/logo.jpeg`; generated mark and favicons live in `assets/`.
-- [ ] **Testimonials** — replace all three sample quotes and the placeholder client names / designations on `index.html`; remove the sample-testimonial note.
 - [ ] **Team** — the six profiles on `about.html` use real names, roles and role-based bios; add photos if desired.
-- [ ] **Statistics** — replace the four sample counters on `index.html` with verified figures and remove the placeholder note.
 - [ ] **Legal text** — have `privacy.html` and `terms.html` reviewed and rewritten by a qualified legal professional; add effective dates, legal entity name and jurisdiction.
 - [ ] **Domain** — replace `www.example.com` in every `<link rel="canonical">`, Open Graph `og:url`, `sitemap.xml` and `robots.txt`.
-- [ ] **Form backend** — connect the contact form to Formspree or EmailJS; submissions should go to `omkarenterprises1330@gmail.com`. See the integration note above `initContactForm()` in `js/main.js`, then remove the demo success message and note in `contact.html`.
+- [ ] **Form notifications** — Netlify Forms handles submissions; set the notification recipient in the Netlify dashboard for the `contact` form.
 - [ ] **SEO** — review every page title and meta description, and add an Open Graph image if you want rich link previews.
 - [ ] **Analytics / cookies** — update the privacy policy if you add analytics or tracking cookies.
 

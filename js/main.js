@@ -309,159 +309,7 @@
   }
 
   /* ------------------------------------------------------------------
-     5. Animated counters
-     ------------------------------------------------------------------ */
-  function animateCounter(element) {
-    var target = parseInt(element.getAttribute("data-counter"), 10);
-    var suffix = element.getAttribute("data-counter-suffix") || "";
-    if (isNaN(target) || reducedMotion) {
-      element.textContent = (isNaN(target) ? "0" : target) + suffix;
-      return;
-    }
-    var start = null;
-    var duration = 1600;
-    function step(timestamp) {
-      if (!start) {
-        start = timestamp;
-      }
-      var progress = Math.min((timestamp - start) / duration, 1);
-      var eased = 1 - Math.pow(1 - progress, 3);
-      element.textContent = Math.round(target * eased) + suffix;
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
-      } else {
-        element.textContent = target + suffix;
-      }
-    }
-    window.requestAnimationFrame(step);
-  }
-
-  function initCounters() {
-    var counters = document.querySelectorAll("[data-counter]");
-    if (!counters.length) {
-      return;
-    }
-    if (!("IntersectionObserver" in window)) {
-      counters.forEach(animateCounter);
-      return;
-    }
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          animateCounter(entry.target);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.5 });
-    counters.forEach(function (counter) {
-      observer.observe(counter);
-    });
-  }
-
-  /* ------------------------------------------------------------------
-     6. Testimonial slider (dots, autoplay, pause on hover / focus)
-     ------------------------------------------------------------------ */
-  function initTestimonials() {
-    var slider = document.querySelector(".testimonials");
-    if (!slider) {
-      return;
-    }
-    var slides = Array.prototype.slice.call(slider.querySelectorAll(".testimonial__slide"));
-    var dotsContainer = slider.querySelector(".testimonial__dots");
-    var rating = slider.querySelector(".testimonial__rating");
-
-    slider.classList.toggle("testimonials--single", slides.length < 2);
-
-    if (rating) {
-      var rawRating = (rating.getAttribute("data-rating") || "").trim();
-      var ratingMatch = rawRating.match(/^(\d+(?:\.\d+)?)(?:\/5)?$/);
-      var stars = rating.querySelector(".testimonial__rating-stars");
-      var ratingValue = rating.querySelector(".testimonial__rating-value");
-      if (ratingMatch && stars && ratingValue) {
-        var score = Math.max(0, Math.min(5, Number(ratingMatch[1])));
-        var filledStars = Math.round(score);
-        stars.textContent = new Array(filledStars + 1).join("★") + new Array(6 - filledStars).join("☆");
-        ratingValue.textContent = score + "/5";
-        rating.setAttribute("aria-label", "Client rating: " + score + "/5");
-      }
-    }
-
-    if (slides.length < 2 || !dotsContainer) {
-      return;
-    }
-
-    var index = 0;
-    var timer = null;
-    var interval = 6500;
-    var autoplay = slider.getAttribute("data-autoplay") !== "false";
-
-    slides.forEach(function (slide, i) {
-      slide.hidden = i !== 0;
-    });
-
-    slides.forEach(function (_, i) {
-      var dot = document.createElement("button");
-      dot.type = "button";
-      dot.className = "testimonial__dot";
-      dot.setAttribute("aria-label", "Show testimonial " + (i + 1) + " of " + slides.length);
-      dot.setAttribute("aria-pressed", String(i === 0));
-      if (i === 0) {
-        dot.classList.add("testimonial__dot--active");
-      }
-      dot.addEventListener("click", function () {
-        show(i);
-        stop();
-        start();
-      });
-      dotsContainer.appendChild(dot);
-    });
-
-    var dots = Array.prototype.slice.call(dotsContainer.querySelectorAll(".testimonial__dot"));
-
-    function show(next) {
-      index = (next + slides.length) % slides.length;
-      slides.forEach(function (slide, i) {
-        slide.hidden = i !== index;
-      });
-      dots.forEach(function (dot, i) {
-        dot.classList.toggle("testimonial__dot--active", i === index);
-        dot.setAttribute("aria-pressed", String(i === index));
-      });
-    }
-
-    function start() {
-      if (!autoplay || reducedMotion || timer) {
-        return;
-      }
-      timer = window.setInterval(function () {
-        show(index + 1);
-      }, interval);
-    }
-
-    function stop() {
-      if (timer) {
-        window.clearInterval(timer);
-        timer = null;
-      }
-    }
-
-    slider.addEventListener("mouseenter", stop);
-    slider.addEventListener("mouseleave", start);
-    slider.addEventListener("focusin", stop);
-    slider.addEventListener("focusout", start);
-    document.addEventListener("visibilitychange", function () {
-      if (document.hidden) {
-        stop();
-      } else {
-        start();
-      }
-    });
-
-    start();
-  }
-
-  /* ------------------------------------------------------------------
-     7. FAQ accordion
+     5. FAQ accordion
      ------------------------------------------------------------------ */
   function initFaq() {
     var questions = document.querySelectorAll(".faq__question");
@@ -488,17 +336,9 @@
   }
 
   /* ------------------------------------------------------------------
-     8. Contact form validation and success state
-
-     Form submissions should go to omkarenterprises1330@gmail.com.
-     To connect this form to a backend:
-     - Formspree: set the form's action to your Formspree endpoint and method="POST",
-       then let the library-free fallback submit normally.
-     - EmailJS: include their SDK, and inside the success branch below send the
-       payload with your service and template IDs before showing the success message.
-     Until a backend is connected, submission is intercepted and only validated
-     locally so the page never breaks or reloads.
+     6. Contact form validation and submission
      ------------------------------------------------------------------ */
+  /* Submissions are handled by Netlify Forms; notification email is configured in the Netlify dashboard. */
   function initContactForm() {
     var form = document.querySelector("#contact-form");
     if (!form) {
@@ -584,7 +424,7 @@
       });
     });
 
-    form.addEventListener("submit", function (event) {
+    form.addEventListener("submit", async function (event) {
       event.preventDefault();
       var valid = true;
       var firstInvalid = null;
@@ -606,22 +446,58 @@
         return;
       }
 
-      /* Connect a backend here (see the Formspree / EmailJS note above). */
       var success = document.querySelector(".form-success");
+      var errorMessage = document.querySelector(".form-error-message");
+      var submitButton = form.querySelector('button[type="submit"]');
+      var submitLabel = submitButton ? submitButton.innerHTML : "";
+
       if (success) {
-        success.classList.add("form-success--visible");
-        success.setAttribute("role", "status");
-        success.focus();
+        success.classList.remove("form-success--visible");
       }
-      form.reset();
-      Object.keys(rules).forEach(function (name) {
-        showError(form.elements[name], "");
-      });
+      if (errorMessage) {
+        errorMessage.classList.remove("form-error-message--visible");
+        errorMessage.textContent = "";
+      }
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Sending...";
+      }
+
+      try {
+        var response = await fetch("/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(new FormData(form)).toString()
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        form.reset();
+        Object.keys(rules).forEach(function (name) {
+          showError(form.elements[name], "");
+        });
+        if (success) {
+          success.classList.add("form-success--visible");
+          success.focus();
+        }
+      } catch (error) {
+        if (errorMessage) {
+          errorMessage.innerHTML = 'Sorry, your message could not be sent. Please email us at <a href="mailto:omkarenterprises1330@gmail.com">omkarenterprises1330@gmail.com</a> or call <a href="tel:+919137334292">+91 91373 34292</a>.';
+          errorMessage.classList.add("form-error-message--visible");
+          errorMessage.focus();
+        }
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.innerHTML = submitLabel;
+        }
+      }
     });
   }
 
   /* ------------------------------------------------------------------
-     9. Footer year
+     7. Footer year
      ------------------------------------------------------------------ */
   function initYear() {
     document.querySelectorAll("[data-year]").forEach(function (element) {
@@ -654,8 +530,6 @@
     initNavigationState();
     initBackToTop();
     initReveal();
-    initCounters();
-    initTestimonials();
     initFaq();
     initContactForm();
     initYear();
