@@ -1,0 +1,6 @@
+# PLACEHOLDER: replace www.example.com with your real domain before launch.
+User-agent: *
+Allow: /
+Disallow: /404.html
+
+Sitemap: https://www.example.com/sitemap.xml
